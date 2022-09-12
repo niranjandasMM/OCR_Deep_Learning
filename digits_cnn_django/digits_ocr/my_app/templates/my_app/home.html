@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>Optical character recongnition OCR</title>
+</head>
+<body>
+    <h1>Welcome to Optical character recongnition OCR Project</h1>
+    <p>Built using Django, some javascript, CSS and html</p>
+    <form method = "post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}   
+        <button type="submit">Upload</button>
+    </form>
+    
+    {% if img_obj %}  
+        <h1>Name - {{name}}</h1>
+        <img src="{{img_obj.img.url}}" alt="Smiley face" width="250" height="250">  
+    {% endif %}  
+</body>
+</html>
