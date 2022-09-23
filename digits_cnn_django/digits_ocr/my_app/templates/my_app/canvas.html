@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<head>
+    <title>Draw canva OCR</title>
+    <link rel="stylesheet" type="text/css" href="https://niranjandasmm.github.io/digits_ocr_project/css/canvas.css">
+</head>
+<body>
+    <h1>Draw and python will process the image and guess what you drawn...</h1>
+        <div>
+        <section class="container">
+            <div id="toolbar">
+                <h1>Draw</h1>
+                <label for="stroke">Stroke</label>
+                <input id="stroke" name='stroke' type="color">
+                <label for="lineWidth">Line Width</label>
+                <input id="lineWidth" name='lineWidth' type="number" value="5">
+                <button id="clear">Clear</button>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input  type="hidden" name="image-input" id="image-input" >
+                    <button id="upload" type="submit">Upload</button>
+                </form>
+            </div>
+            
+            <div class="drawing-board">
+                <canvas name = "drawing-board" id="drawing-board" width="500px" height="500px" style="border: 2px solid black"></canvas>
+            </div>
+        </section>
+        {% if y_pred %}
+        <h1>Neural network predicted is : {{y_pred}}</h1>
+        {% endif %}
+        </div>
+   
+    <script> 
+        console.log("Javascript Here, added saving method also ")
+
+        const canvas = document.getElementById('drawing-board');
+        const toolbar = document.getElementById('toolbar');
+        const ctx = canvas.getContext('2d');
+        const display_btn = document.querySelector('#display')
+        const output =  document.querySelector('#output_display')
+        const my_image = document.querySelector('#image-input')
+        const upload_btn = document.querySelector('#upload')
+
+        const canvasOffsetX = canvas.offsetLeft;
+        const canvasOffsetY = canvas.offsetTop;
+
+        let isPainting = false;
+        let lineWidth = 5;
+        let startX;
+        let startY;
+
+        toolbar.addEventListener('click', e => {
+            if (e.target.id === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        toolbar.addEventListener('change', e => {
+            if(e.target.id === 'stroke') {
+                ctx.strokeStyle = e.target.value;
+            }
+
+            if(e.target.id === 'lineWidth') {
+                lineWidth = e.target.value;
+            }
+            
+        });
+
+        const draw = (e) => {
+            if(!isPainting) {
+                return;
+            }
+
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+
+            ctx.lineTo(e.clientX - canvasOffsetX, e.clientY);
+            ctx.stroke();
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isPainting = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        canvas.addEventListener('mouseup', e => {
+            isPainting = false;
+            ctx.stroke();
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('mousemove', draw);
+
+
+        upload_btn.addEventListener("click", function () {
+                let dataURI = canvas.toDataURL();
+                dataURI = dataURI.substring(22); //We are removing the extra pdaaing , the base64 image png tag , nothing else, simple as it is to avoid the extra padding error 
+                console.log(dataURI);
+                my_image.value = dataURI;
+            });    
+    </script>
+</body>
+</html>
